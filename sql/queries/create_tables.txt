@@ -1,0 +1,61 @@
+CREATE TABLE universities (
+	name_PK VARCHAR(64) NOT NULL,
+	country VARCHAR(64) NOT NULL,
+	region VARCHAR(64) NOT NULL,
+	professors INT NOT NULL CHECK (professors >= 0),
+	students INT NOT NULL CHECK (students >= 0),
+	courses INT NOT NULL CHECK (courses >= 0),
+	PRIMARY KEY (name_PK)
+);
+
+CREATE TABLE members (
+	id_PK VARCHAR(64) NOT NULL,
+	university_FK VARCHAR(64) NOT NULL,
+	first_name VARCHAR(64) NOT NULL,
+	last_name VARCHAR(64) NOT NULL,
+	email VARCHAR(64) NOT NULL UNIQUE,
+	phone VARCHAR(16) UNIQUE,
+	PRIMARY KEY (id_PK),
+	FOREIGN KEY (university_FK) REFERENCES universities(name_PK)
+); 
+
+CREATE TABLE professors (
+	id_PK_FK VARCHAR(64) NOT NULL UNIQUE,
+	experience INT NOT NULL,
+	salary INT NOT NULL,
+	specialty VARCHAR(64) NOT NULL,
+	PRIMARY KEY (id_PK_FK),
+	FOREIGN KEY(id_PK_FK) REFERENCES members(id_PK)
+);
+
+CREATE TABLE students (
+	id_PK_FK VARCHAR(64) NOT NULL UNIQUE,
+	student_id VARCHAR(64) NOT NULL,
+	semester INT NOT NULL,
+	gpa FLOAT NOT NULL CHECK (gpa >= 0),
+	PRIMARY KEY (id_PK_FK),
+	FOREIGN KEY(id_PK_FK) REFERENCES members(id_PK)
+);
+
+CREATE TABLE courses (
+	id_PK VARCHAR(64) NOT NULL,
+	university_PK_FK VARCHAR(64) NOT NULL,
+	professor_id_FK VARCHAR(64) NOT NULL,
+	name VARCHAR(64) NOT NULL,
+	PRIMARY KEY (id_PK, university_PK_FK),
+	FOREIGN KEY(university_PK_FK) REFERENCES universities(name_PK),
+	FOREIGN KEY(professor_id_FK) REFERENCES professors(id_PK_FK)
+);
+
+CREATE TABLE attends (
+	student_id_PK_FK VARCHAR(64) NOT NULL,
+	course_id_PK_FK VARCHAR(64) NOT NULL,
+	university_name_PK_FK VARCHAR(64) NOT NULL,
+	PRIMARY KEY (student_id_PK_FK, course_id_PK_FK, university_name_PK_FK),
+	FOREIGN KEY(student_id_PK_FK) REFERENCES students(id_PK_FK),
+	FOREIGN KEY(course_id_PK_FK, university_name_PK_FK) REFERENCES courses(id_PK, university_PK_FK)
+);
+
+CREATE TABLE delete_university(
+	d_university  INTEGER NOT NULL DEFAULT 0
+);

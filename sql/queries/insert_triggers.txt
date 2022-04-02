@@ -1,0 +1,70 @@
+--- VIEWS --- 
+CREATE OR REPLACE VIEW members_disjoint_professors AS
+SELECT members.id_pk, members.university_fk, members.first_name, members.last_name, members.email, members.phone, professors.experience, professors.salary, professors.specialty
+FROM members, professors;
+
+CREATE OR REPLACE FUNCTION f_insert_professor() RETURNS TRIGGER AS $$
+BEGIN
+	-- Member Insert
+	INSERT INTO members VALUES (NEW.id_pk, NEW.university_fk, NEW.first_name, NEW.last_name, NEW.email, NEW.phone);
+	
+	-- Professor Insert
+	INSERT INTO professors VALUES (NEW.id_pk, NEW.experience, NEW.salary, NEW.specialty);
+	
+	--Update Universities Table
+	UPDATE universities
+	SET professors = professors + 1
+	WHERE NEW.university_fk = name_pk;
+	
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql
+
+CREATE TRIGGER t_insert_professor INSTEAD OF INSERT ON members_disjoint_professors
+FOR EACH ROW
+EXECUTE PROCEDURE f_insert_professor()
+
+
+CREATE OR REPLACE VIEW members_disjoint_students AS
+SELECT members.id_pk, members.university_fk, members.first_name, members.last_name, members.email, members.phone, students.student_id, students.semester, students.gpa
+FROM members, students
+
+
+CREATE OR REPLACE FUNCTION f_insert_student() RETURNS TRIGGER AS $$
+BEGIN
+	-- Member Insert
+	INSERT INTO members VALUES (NEW.id_pk, NEW.university_fk, NEW.first_name, NEW.last_name, NEW.email, NEW.phone);
+	
+	-- Student Insert
+	INSERT INTO students VALUES (NEW.id_pk, NEW.student_id, NEW.semester, NEW.gpa);
+	
+	--Update Universities Table
+	UPDATE universities
+	SET students = students + 1
+	WHERE NEW.university_fk = name_pk;
+	
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql
+
+
+CREATE TRIGGER t_insert_student INSTEAD OF INSERT ON members_disjoint_students
+FOR EACH ROW
+EXECUTE PROCEDURE f_insert_student()
+
+
+CREATE OR REPLACE FUNCTION f_insert_course() RETURNS TRIGGER AS $$
+BEGIN
+	--Update Universities Table
+	UPDATE universities
+	SET courses = courses + 1
+	WHERE NEW.university_pk_fk = name_pk;
+
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql
+
+
+CREATE TRIGGER t_insert_course AFTER INSERT ON courses
+FOR EACH ROW 
+EXECUTE PROCEDURE f_insert_course()

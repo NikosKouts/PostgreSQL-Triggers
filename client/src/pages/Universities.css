@@ -1,0 +1,10 @@
+.container {
+    text-align: center;
+}
+
+
+#university-headers {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    text-align: center;
+}

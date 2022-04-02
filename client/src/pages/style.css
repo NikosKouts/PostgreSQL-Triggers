@@ -1,0 +1,89 @@
+.container {
+    text-align: center;
+}
+
+#student-headers {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+}
+
+#student-register-form {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+}
+
+#student-register-form > div {
+    margin: 0.4vw auto;
+}
+
+.container {
+    text-align: center;
+}
+
+#professor-headers {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    text-align: center;
+}
+
+#professor-register-form {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+}
+
+#professor-register-form > div { 
+    margin: 0.4vw auto; 
+}
+
+#submit {
+    display: block;
+    margin: 2vw auto;
+    padding: 16px 32px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    background-color: white; 
+    color: black; 
+    border: 2px solid #4CAF50;
+}
+
+#submit:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+
+#courses-headers {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+}
+
+
+#course-register-form {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+}
+
+#course-register-form > div { 
+    margin: 0.4vw auto; 
+}
+
+#university-register-form {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+}
+
+#university-register-form > div { 
+    margin: 0.4vw auto; 
+}
+
+#student-course-register-form {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+}
+
+#student-course-register-form > div{
+    margin: 0.4vw auto;
+}

@@ -1,0 +1,114 @@
+CREATE OR REPLACE FUNCTION f_delete_course() RETURNS TRIGGER AS $$
+BEGIN
+	--Update Attends Table
+	DELETE FROM attends
+	WHERE OLD.id_pk = course_id_pk_fk AND OLD.university_pk_fk = university_name_pk_fk;
+	
+	--Update Universities Table
+	IF(SELECT d_university FROM delete_university) = 0 THEN
+		UPDATE  universities
+		SET courses = courses - 1
+		WHERE OLD.university_pk_fk = name_pk;
+	END IF;
+	
+	RETURN OLD;
+END;
+$$ LANGUAGE plpgsql
+
+CREATE TRIGGER t_delete_course BEFORE DELETE ON courses
+FOR EACH ROW
+EXECUTE PROCEDURE f_delete_course()
+
+
+CREATE OR REPLACE FUNCTION f_before_delete_student() RETURNS TRIGGER AS $$
+BEGIN
+	--Update Attends Table
+	DELETE FROM attends
+	WHERE OLD.id_pk_fk = student_id_pk_fk AND 
+			(SELECT university_fk FROM members WHERE OLD.id_pk_fk = id_pk) = university_name_pk_fk;
+	
+	--Update Universities Table
+	IF(SELECT d_university FROM delete_university) = 0 THEN
+		UPDATE  universities
+		SET students = students - 1
+		WHERE (SELECT university_fk FROM members WHERE OLD.id_pk_fk = id_pk) = name_pk;
+	END IF;
+	
+	RETURN OLD;
+END;
+$$ LANGUAGE plpgsql
+
+CREATE TRIGGER t_before_delete_student BEFORE DELETE ON students
+FOR EACH ROW
+EXECUTE PROCEDURE f_before_delete_student()
+
+
+CREATE OR REPLACE FUNCTION f_delete_member() RETURNS TRIGGER AS $$
+BEGIN
+	--Update Members Table
+	DELETE FROM members
+	WHERE id_pk = OLD.id_pk_fk;
+
+	RETURN OLD;
+END;
+$$ LANGUAGE plpgsql
+
+CREATE TRIGGER t_after_delete_student AFTER DELETE ON students
+FOR EACH ROW
+EXECUTE PROCEDURE f_delete_member()
+
+
+
+CREATE OR REPLACE FUNCTION f_before_delete_professor() RETURNS TRIGGER AS $$
+BEGIN
+	--Update Courses Table
+	DELETE FROM courses
+	WHERE OLD.id_pk_fk = professor_id_fk;
+	
+	--Update Universities Table
+	IF(SELECT d_university FROM delete_university) = 0 THEN
+		UPDATE  universities
+		SET professors = professors - 1
+		WHERE (SELECT university_fk FROM members WHERE OLD.id_pk_fk = id_pk) = name_pk;
+	END IF;
+	
+	RETURN OLD;
+END;
+$$ LANGUAGE plpgsql
+
+CREATE TRIGGER t_before_delete_professor BEFORE DELETE ON professors
+FOR EACH ROW
+EXECUTE PROCEDURE f_before_delete_professor()
+
+
+
+CREATE TRIGGER t_after_delete_professor AFTER DELETE ON professors
+FOR EACH ROW
+EXECUTE PROCEDURE f_delete_member()
+
+CREATE OR REPLACE FUNCTION f_delete_university() RETURNS TRIGGER AS $$
+BEGIN
+	--Update Delete_university
+	UPDATE delete_university
+	SET d_university = 1;
+
+	--Update Students Table
+	DELETE FROM students
+	WHERE OLD.name_pk IN (SELECT university_fk FROM members WHERE students.id_pk_fk = id_pk);
+	
+	--Update Professors Table
+	DELETE FROM professors
+	WHERE OLD.name_pk IN (SELECT university_fk FROM members WHERE professors.id_pk_fk = id_pk);
+	
+	--Update Delete_university
+	UPDATE delete_university
+	SET d_university = 0;
+	
+	RETURN OLD;
+END;
+$$LANGUAGE plpgsql
+
+
+CREATE TRIGGER t_delete_university BEFORE DELETE ON universities
+FOR EACH ROW
+EXECUTE PROCEDURE f_delete_university();
